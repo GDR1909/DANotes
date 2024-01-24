@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "danotes-434fa": {
+      "hosting": {
+        "da-keep": [
+          "danotes-434fa"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "danotes-434fa"
+  }
+}
