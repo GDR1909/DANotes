@@ -29,7 +29,6 @@ export class NoteListService {
         console.log(element);
       });
     });
-    this.items.unsubscribe();
 
 
     // 1. Variante mit "onSnapshot()" um Daten mit Firebase abzurufen
@@ -45,11 +44,15 @@ export class NoteListService {
     })
 
     // so werden die Daten die mit onSnapshot() von Firebase abgerufen wurden wieder unsubscribed
-    this.unsubSingle();
-    this.unsubList();
+    // this.unsubSingle();
   }
 
   // const itemCollection = collection(this.firestore, 'items');
+
+  ngonDestroy() {
+    this.unsubList();
+    this.items.unsubscribe();
+  }
 
   getNotesRef() {
     return collection(this.firestore, 'notes');
