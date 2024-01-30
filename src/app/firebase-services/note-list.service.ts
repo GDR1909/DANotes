@@ -10,49 +10,54 @@ export class NoteListService {
   trashNotes: Note[] = [];
   normalNotes: Note[] = [];
 
-  // Variablen für "collectData()" um Daten mit Firebase abzurufen
-  items$;
-  items;
-
-  // Variablen für "onSnapshot()" um Daten mit Firebase abzurufen
-  unsubList;
-  unsubSingle;
+  unsubTrash;
+  unsubNotes;
 
   firestore: Firestore = inject(Firestore);
 
 
   constructor() {
-    // Variante mit "collectData()" um Daten mit Firebase abzurufen
-    this.items$ = collectionData(this.getNotesRef());
-    this.items = this.items$.subscribe((list) => {
-      list.forEach(element => {
-        console.log(element);
-      });
-    });
-
-
-    // 1. Variante mit "onSnapshot()" um Daten mit Firebase abzurufen
-    this.unsubList = onSnapshot(this.getNotesRef(), (list) => {
-      list.forEach(element => {
-        console.log(element);
-      })
-    })
-
-    // 2. Variante mit "onSnapshot()" um Daten mit Firebase abzurufen
-    this.unsubSingle = onSnapshot(this.getSingleDocRef("notes", "a64456ef486464"), (element) => {
-
-    })
-
-    // so werden die Daten die mit onSnapshot() von Firebase abgerufen wurden wieder unsubscribed
-    // this.unsubSingle();
+    this.unsubNotes = this.subNotesList();
+    this.unsubTrash = this.subTrashList();
   }
 
-  // const itemCollection = collection(this.firestore, 'items');
 
   ngonDestroy() {
-    this.unsubList();
-    this.items.unsubscribe();
+    this.unsubNotes();
+    this.unsubTrash();
   }
+
+
+  subTrashList() {
+    return onSnapshot(this.getTrashRef(), (list) => {
+      this.trashNotes = [];
+      list.forEach(element => {
+        this.trashNotes.push(this.setNoteObject(element.data(), element.id));
+      })
+    })
+  }
+
+
+  subNotesList() {
+    return onSnapshot(this.getNotesRef(), (list) => {
+      this.normalNotes = [];
+      list.forEach(element => {
+        this.normalNotes.push(this.setNoteObject(element.data(), element.id));
+      })
+    })
+  }
+
+
+  setNoteObject(obj: any, id: string): Note {
+    return {
+      id: id,
+      type: obj.type || "note",
+      title: obj.title || "",
+      content: obj.content || "",
+      marked: obj.marked || false
+    }
+  }
+
 
   getNotesRef() {
     return collection(this.firestore, 'notes');
